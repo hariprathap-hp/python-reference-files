@@ -5,8 +5,9 @@ Created on Wed Apr 11 14:19:29 2018
 @author: Aricent
 """
 
-import scrapy
+import scrapy, json, re, openpyxl
 my_file = open("C:\\Users\\Aricent\\tutorial\\imdb1.json",'w+')
+oscar_2018 = {"Oscars Categories":"Oscar Winners"}
 
 class ParseIMDB(scrapy.Spider):
     name = 'imdb'
@@ -18,20 +19,32 @@ class ParseIMDB(scrapy.Spider):
                 ]
         
         for url in urls:
-            yield scrapy.Request(url=url, callback=self.parse)
+            yield scrapy.Request(url=url, callback=self.parse_imdb)
             
-    def parse(self,response):
+    def parse_imdb(self,response):
         js_output = response.xpath('//span[@class="ab_widget"]//script[@type="text/javascript"]').extract()
         for line in js_output[0]:
             my_file.write(line)    
-        yield{
-                'link':js_output[0]
-                }
+        self.extract_movie_info()
+            
+    def extract_movie_info(self):
+        print("In function")
+        json_file = open("C:\\Users\\Aricent\\tutorial\\imdb1.json")
+        my_json_out = open("C:\\Users\\Aricent\\tutorial\\imdb_out.json","w+")
+        my_lines = json_file.readlines()
+        my_rex = re.compile(r'(?<=\'center-8-react\',)(.*)(?=]\);)')
+        for line in my_lines:
+            if "center-8-react" in line:
+                my_line = my_rex.search(line)
+                my_json_out.write(my_line.group())
+        my_file = open("C:\\Users\\Aricent\\tutorial\\imdb_out.json")
+        json_data = json.load(my_file)
+        length = len(json_data["nomineesWidgetModel"]["eventEditionSummary"]["awards"][0]["categories"])
+        print(length)
         
-        '''self.get_God(link)
-        
-    def get_God(self, titles):
-        print(titles)
-        for title in titles:
-            if 'Dark' in title:
-                print(title)'''
+        for i in range(0,24):
+            if json_data["nomineesWidgetModel"]["eventEditionSummary"]["awards"][0]["categories"][i]["nominations"][0]["isWinner"]:
+                categories = (json_data["nomineesWidgetModel"]["eventEditionSummary"]["awards"][0]["categories"][i]["categoryName"]).upper()
+                winners = json_data["nomineesWidgetModel"]["eventEditionSummary"]["awards"][0]["categories"][i]["nominations"][0]["primaryNominees"][0]["name"]
+                oscar_2018[categories] = winners
+        print(oscar_2018)
