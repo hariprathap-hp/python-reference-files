@@ -2,7 +2,7 @@
 """
 Created on Wed Apr 11 14:19:29 2018
 
-@author: Aricent
+@author: Hari Prathap
 """
 
 import scrapy, json, re, openpyxl
