@@ -1,3 +1,4 @@
+
 '''
 Referral Links
 https://docs.python.org/2/library/imaplib.html
@@ -39,7 +40,9 @@ def main():
             print("Error Getting Message")
 
         #message_from_string a message object structure from a string. This is equivalent to Parser().parsestr(s)
-        msg = email.message_from_string(data[0][1])
+        #In python 3, use email.message_from_bytes(data[0][1]) instead
+        
+        msg = email.message_from_string(data[0][1]) #message_from_string( works only in python 2)
         
         #var msg now contains the full header
         print(msg)
